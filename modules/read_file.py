@@ -1,4 +1,4 @@
-FILEPATH = '../todos.txt'
+FILEPATH = 'todos.txt'
 
 def read_file(filepath=FILEPATH):
     with open(filepath, 'r') as file_local:
