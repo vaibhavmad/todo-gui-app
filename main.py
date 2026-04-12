@@ -3,7 +3,7 @@ from modules.read_file import read_file
 from modules.write_file import write_to_file
 
 label = sg.Text('Enter a ToDo:')
-input1 = sg.InputText(tooltip='Enter ToDo')
+input1 = sg.InputText(tooltip='Enter ToDo', key='todo')
 add_button = sg.Button("Add")
 
 window = sg.Window('To-Do App',
@@ -16,7 +16,10 @@ while True:
     match event:
         case 'Add':
             todos = read_file()
-            new_todo = values[0] + '\n'
+            new_todo = values['todo'] + '\n'
             todos.append(new_todo)
             write_to_file(todos)
+        case sg.WIN_CLOSED:
+            break
+
 window.close()
