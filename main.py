@@ -2,6 +2,8 @@ import FreeSimpleGUI as sg
 from modules.read_file import read_file
 from modules.write_file import write_to_file
 
+sg.theme("DarkBlue")
+
 label = sg.Text('Enter a ToDo:')
 input1 = sg.InputText(tooltip='Enter ToDo', key='todo')
 add_button = sg.Button("Add")
