@@ -2,60 +2,70 @@ import FreeSimpleGUI as sg
 from modules.read_file import read_file
 from modules.write_file import write_to_file
 
-sg.theme("DarkBlue")
+try:
+    to_do_file = read_file('files/todos.txt')
+except FileNotFoundError:
+    with open('files/todos.txt', 'w') as file:
+        pass
 
-label = sg.Text('Enter a ToDo:')
-input1 = sg.InputText(tooltip='Enter ToDo', key='todo')
-add_button = sg.Button("Add")
+try:
+    complete_todo_file = read_file('files/complete_todo.txt')
+except FileNotFoundError:
+    with open('files/complete_todo.txt', 'w') as file:
+        pass
 
-list_box = sg.Listbox(values=read_file(), key='todos',
-                      enable_events=True, size=[40, 10])
-edit_button = sg.Button('Edit')
-complete_button = sg.Button('Complete')
-exit_button = sg.Button('Exit')
+add_todo_label = sg.Text('Add ToDo:')
+add_todo_input = sg.InputText(key='add_todo')
+add_todo_button = sg.Button('Add')
 
-layout = [[label], [input1, add_button], [list_box, edit_button, complete_button], [exit_button]]
+display_todo = sg.Listbox(values=[], key='todos_box', enable_events=True, size=[30, 10])
+display_completed_todo = sg.Listbox(values=[], key='completed', size=[30, 10])
 
-window = sg.Window('To-Do App',
-                   layout=layout,
-                   font=('Helvetica', 16))
+edit_todo_button = sg.Button('Edit')
+complete_todo_button = sg.Button('Complete')
+delete_todo_button = sg.Button('Delete')
+refresh_all_button = sg.Button('Refresh')
+exit_app_button = sg.Button('Exit')
+
+layout = [[add_todo_label, add_todo_input, add_todo_button],
+          [display_todo, display_completed_todo],
+          [edit_todo_button, complete_todo_button, delete_todo_button, refresh_all_button, exit_app_button]]
+
+window = sg.Window(title='ToDo App',layout=layout,finalize=True)
+
+window['add_todo'].bind('<Return>', 'ENTER')
+
+todos = read_file('files/todos.txt')
+window['todos_box'].update(values=todos)
+
+completed_list = read_file('files/complete_todo.txt')
+window['completed'].update(values=completed_list)
 
 while True:
     event, values = window.read()
-    match event:
-
-        case 'Add':
-            todos = read_file()
-            new_todo = values['todo'] + '\n'
-            todos.append(new_todo)
-            write_to_file(todos)
-            window['todos'].update(todos)
-
-        case 'Edit':
-            todo_to_edit = values['todos'][0]
-            todos = read_file()
-            todo_index = todos.index(todo_to_edit)
-            edited_todo = values['todo'] + '\n'
-            todos[todo_index] = edited_todo
-            write_to_file(todos)
-            window['todos'].update(values=todos)
-
-        case 'todos':
-            window['todo'].update(value=values['todos'][0])
-
-        case 'Complete':
-            to_complete_todo = values['todos'][0]
-            todos = read_file()
-            todos.remove(to_complete_todo)
-            write_to_file(todos)
-            window['todos'].update(values=todos)
-            window['todo'].update(value='')
-
-        case 'Exit':
-            break
-
-        case sg.WIN_CLOSED:
-            break
     print(event)
     print(values)
+    match event:
+        case 'add_todoENTER' | 'Add':
+            todo = values['add_todo']  + '\n'
+            todos = read_file('files/todos.txt')
+            todos.append(todo)
+            write_to_file(todos, 'files/todos.txt')
+            window['todos_box'].update(values=todos)
+
+        case 'Complete':
+            todo_to_complete = values['todos_box'][0]
+            todos = read_file('files/todos.txt')
+            todo_complete_index = todos.index(todo_to_complete)
+            completed_todo = todos.pop(todo_complete_index)
+            write_to_file(todos, 'files/todos.txt')
+            window['todos_box'].update(values=todos)
+            completed_list = read_file('files/complete_todo.txt')
+            completed_list.append(completed_todo)
+            write_to_file(completed_list, 'files/complete_todo.txt')
+            window['completed'].update(values=completed_list)
+
+        case sg.WIN_CLOSED | 'Exit':
+            break
+
 window.close()
