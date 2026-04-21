@@ -48,21 +48,39 @@ while True:
     match event:
         case 'add_todoENTER' | 'Add':
             todo = values['add_todo']  + '\n'
-            todos = read_file('files/todos.txt')
             todos.append(todo)
             write_to_file(todos, 'files/todos.txt')
             window['todos_box'].update(values=todos)
 
         case 'Complete':
             todo_to_complete = values['todos_box'][0]
-            todos = read_file('files/todos.txt')
             todo_complete_index = todos.index(todo_to_complete)
             completed_todo = todos.pop(todo_complete_index)
             write_to_file(todos, 'files/todos.txt')
             window['todos_box'].update(values=todos)
-            completed_list = read_file('files/complete_todo.txt')
             completed_list.append(completed_todo)
             write_to_file(completed_list, 'files/complete_todo.txt')
+            window['completed'].update(values=completed_list)
+
+        case 'todos_box':
+            todo_to_edit = values['todos_box'][0]
+            window['add_todo'].update(value=todo_to_edit)
+            todo_to_edit_index = todos.index(todo_to_edit)
+
+        case 'Edit':
+            todos[todo_to_edit_index] = values['add_todo'] + '\n'
+            write_to_file(todos, 'files/todos.txt')
+            window['todos_box'].update(values=todos)
+
+        case 'Delete':
+            todos.pop(todo_to_edit_index)
+            write_to_file(todos, 'files/todos.txt')
+            window['todos_box'].update(values=todos)
+
+        case 'Refresh':
+            todos = read_file('files/todos.txt')
+            window['todos_box'].update(values=todos)
+            completed_list = read_file('files/complete_todo.txt')
             window['completed'].update(values=completed_list)
 
         case sg.WIN_CLOSED | 'Exit':
